@@ -214,7 +214,7 @@ Kısa, net ve profesyonel cevaplar ver.`
     { role: 'user', content: normalizedMessage },
   ]
 
-  let data = await callOllama(messages, true)
+  let data = await callOllama(messages, false)
 
   if (data?.message?.tool_calls?.length > 0) {
     const toolCall = data.message.tool_calls[0]
@@ -241,7 +241,7 @@ Kısa, net ve profesyonel cevaplar ver.`
     data = await callOllama(messagesWithTool, false)
   }
 
-  const reply = data?.message?.content?.trim()
+  const reply = (data?.message?.content ?? '').replace(/^[\s\S]*?<\/think>\s*/i, '').replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '').trim()
   if (!reply) throw new Error('Ollama geçerli bir cevap üretmedi.')
 
   if (sessionId) {
