@@ -7,7 +7,7 @@ import documentsRouter from './src/routes/documents.js'
 import areasRouter from './src/routes/areas.js'
 import { testConnection } from './src/config/database.js'
 
-dotenv.config()
+dotenv.config({ override: false })
 
 const app = express()
 const PORT = process.env.PORT || 3001

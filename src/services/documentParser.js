@@ -4,7 +4,10 @@ import mammoth from 'mammoth'
 import xlsx from 'xlsx'
 import officeParser from 'officeparser'
 import Tesseract from 'tesseract.js'
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+const pdfParse = require('pdf-parse')
+
 
 async function extractPdfText(filePath) {
   const data = new Uint8Array(fs.readFileSync(filePath))
@@ -22,10 +25,12 @@ export async function extractText(filePath, fileType) {
   const ext = fileType.toLowerCase()
 
   try {
-    if (ext === 'pdf') {
-      return await extractPdfText(filePath)
-
-    } else if (ext === 'docx' || ext === 'doc') {
+ if (ext === 'pdf') {
+  const buffer = fs.readFileSync(filePath)
+  const pdfParseLib = pdfParse.default || pdfParse
+  const data = await pdfParseLib(buffer)
+  return data.text
+} else if (ext === 'docx' || ext === 'doc') {
       const result = await mammoth.extractRawText({ path: filePath })
       return result.value
 

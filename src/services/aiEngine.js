@@ -144,7 +144,7 @@ async function callOllama(messages, useTools = false) {
       options: {
         temperature: 0.3,
         num_ctx: 2048,
-        num_predict: 256,
+        num_predict: 150,
       },
     }
 
@@ -192,9 +192,10 @@ export async function processMessage({ message, sessionId, areaId, fileContent, 
   console.log('[AIEngine] Geçmiş:', history.length, 'mesaj')
 
   let systemPrompt = `Sen bir kurumsal yapay zeka asistanısın. Her zaman Türkçe cevap ver.
+SADECE son cevabı yaz, düşünce sürecini, adımları veya iç monologu ASLA yazma.
+Direkt ve kısa cevap ver.
 Kullanıcının sorularını önce aşağıdaki bilgi tabanına göre yanıtla.
-Bilgi tabanında cevap bulamazsan web_search aracını kullanarak internette ara.
-Kısa, net ve profesyonel cevaplar ver.`
+Bilgi tabanında cevap bulamazsan web_search aracını kullanarak internette ara..`
 
   if (areaDocuments) {
     systemPrompt += `\n\n=== ŞİRKET BİLGİ TABANI ===\n${areaDocuments}`
@@ -241,7 +242,8 @@ Kısa, net ve profesyonel cevaplar ver.`
     data = await callOllama(messagesWithTool, false)
   }
 
-  const reply = (data?.message?.content ?? '').replace(/^[\s\S]*?<\/think>\s*/i, '').replace(/<think>[\s\S]*?(?:<\/think>|$)/gi, '').trim()
+  let reply = data?.message?.content?.trim()
+reply = reply?.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
   if (!reply) throw new Error('Ollama geçerli bir cevap üretmedi.')
 
   if (sessionId) {
